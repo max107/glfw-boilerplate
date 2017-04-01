@@ -1,4 +1,5 @@
 #include "Skeleton.hpp"
+#include <iostream>
 
 Skeleton::Skeleton(const string & appName, unsigned int width, unsigned int height)
 {
@@ -12,12 +13,18 @@ Skeleton::~Skeleton()
 
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  std::cout << "Key: " << char(key) << std::endl;
+}
+
 void Skeleton::initGL()
 {
     LOG(INFO) << "Initialising OpenGL";
 
     // Initialise GLFW
     LOG(INFO) << "Initialising GLFW";
+    LOG(INFO) << GLFW_VERSION_MAJOR;
+    LOG(INFO) << GLFW_VERSION_MINOR;
     if (!glfwInit())
     {
         throw "Failed to initialise GLFW";
@@ -51,8 +58,10 @@ void Skeleton::initGL()
     LOG(INFO) << " - Making window the current OpenGL context";
     glfwMakeContextCurrent(window);
 
-    glfwSetWindowUserPointer(window, this);
-    glfwSetWindowFocusCallback(window, &focusEvent);
+    // glfwSetWindowUserPointer(window, this);
+    // glfwSetWindowFocusCallback(window, &focusEvent);
+    glfwSetKeyCallback(window, key_callback);
+    // glfwSetWindowUserPointer(window, window);
 
     // Setup ImGui binding
     ImGui_ImplGlfwGL3_Init(window, true);
@@ -235,6 +244,14 @@ void Skeleton::renderfps(unsigned int framerate)
     {
         lastTime = currentTime;
         render(); 
+    }
+}
+
+void Skeleton::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    LOG(INFO) << key;
+
+    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     }
 }
 

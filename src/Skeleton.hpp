@@ -55,11 +55,13 @@ public:
     void debugInfo();
     void setup();
     void render();
-    void focusEvent();
-    static void focusEvent(GLFWwindow* window, int focused);
     void renderfps(unsigned int framerate);
     void loop();
     void teardown();
     bool isActive();
+
+    // GLFW
+    static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void focusEvent(GLFWwindow* window, int focused);
 };
 
