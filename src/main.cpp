@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
 
     el::Loggers::setDefaultConfigurations(defaultConf, true);
 
-    Skeleton skeleton("GLFW Skeleton", 640, 480);
+    Skeleton skeleton("GLFW Skeleton", 800, 600);
 
     skeleton.setup();
 

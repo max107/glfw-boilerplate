@@ -13,9 +13,9 @@ Skeleton::~Skeleton()
 
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-  std::cout << "Key: " << char(key) << std::endl;
-}
+// void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+//     std::cout <<"MOUSE POS: " << xpos << ","<< ypos << std::endl;
+// }
 
 void Skeleton::initGL()
 {
@@ -54,13 +54,17 @@ void Skeleton::initGL()
         throw "Failed to create window with GLFW.";
     }
 
+    // glfwSetCursorPosCallback(window, mouse_callback);
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     // Make window the current OpenGL context
     LOG(INFO) << " - Making window the current OpenGL context";
     glfwMakeContextCurrent(window);
 
-    // glfwSetWindowUserPointer(window, this);
-    // glfwSetWindowFocusCallback(window, &focusEvent);
-    glfwSetKeyCallback(window, key_callback);
+    glfwSwapInterval(GLFW_FALSE);
+
+    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowFocusCallback(window, &focusEvent);
     // glfwSetWindowUserPointer(window, window);
 
     // Setup ImGui binding
@@ -146,7 +150,7 @@ void Skeleton::initGL()
 
     // Set OpenGL Options
     LOG(INFO) << " - Setting OpenGL Options";
-    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+    glClearColor(1.f, 1.f, 1.f, 0.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
@@ -172,7 +176,7 @@ void Skeleton::drawSkull(glm::vec2 pos, float scale, glm::vec4 colour)
 void Skeleton::debugInfo() {
     ImGui::SetNextWindowPos(ImVec2(10, 10));
     bool showOverlay = true;
-    if (!ImGui::Begin("Debug overlay", &showOverlay, ImVec2(0, 0), 0.3f,
+    if (!ImGui::Begin("Debug overlay", &showOverlay, ImVec2(0, 0), 0.8f,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                       ImGuiWindowFlags_NoSavedSettings)) {
         ImGui::End();
@@ -180,7 +184,10 @@ void Skeleton::debugInfo() {
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     ImGui::Separator();
-    ImGui::Text("Mouse Position: (%.1f,%.1f)", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+    ImGui::Text("Mouse Position: (%.1f,%.1f)", 
+        ImGui::GetIO().MousePos.x, 
+        ImGui::GetIO().MousePos.y
+    );
     ImGui::End();
 }
 
@@ -258,9 +265,9 @@ void Skeleton::keyCallback(GLFWwindow* window, int key, int scancode, int action
 void Skeleton::focusEvent(GLFWwindow* window, int focused) {
     Skeleton *skeleton = static_cast<Skeleton*>(glfwGetWindowUserPointer(window));
     if (focused) {
-        skeleton->framerate = 60;
+        skeleton->framerate = skeleton->defaultFramerate;
     } else {
-        skeleton->framerate = 30;
+        skeleton->framerate = skeleton->unfocusFramerate;
     }
 }
 
@@ -277,21 +284,18 @@ void Skeleton::render() {
             static_cast<float>(height) / 2
         },
         1.6f,
-        colorhelper::rgbaHexToVec4("FFFFFF", 0.4f)
+        colorhelper::rgbaHexToVec4("000000", 0.4f)
     );
 
     ImGui::Render();
     glfwSwapBuffers(window);
-    glfwPollEvents();
 }
 
 void Skeleton::loop()
 {
-    if (framerate > 0) {
-        renderfps(framerate);
-    } else {
-        render();
-    }
+    keyboardEventHandling();
+    renderfps(framerate);
+    glfwPollEvents();
 }
 
 void Skeleton::teardown()
@@ -308,6 +312,22 @@ void Skeleton::teardown()
 
     LOG(INFO) << " - Terminating GLFW";
     glfwTerminate();
+}
+
+void Skeleton::keyboardEventHandling() 
+{
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        std::cout << 'E' << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        std::cout << 'W' << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        std::cout << 'D' << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        std::cout << 'A' << std::endl;
+    }
 }
 
 bool Skeleton::isActive()

@@ -27,8 +27,12 @@ private:
 
     unsigned int width;
     unsigned int height;
-    unsigned int framerate;
     string appName;
+
+    // FPS limits
+    unsigned int defaultFramerate = 60;
+    unsigned int unfocusFramerate = 30;
+    unsigned int framerate = 60;
 
     double currentTime;
     double lastTime;
@@ -55,6 +59,7 @@ public:
     void debugInfo();
     void setup();
     void render();
+    void keyboardEventHandling();
     void renderfps(unsigned int framerate);
     void loop();
     void teardown();
