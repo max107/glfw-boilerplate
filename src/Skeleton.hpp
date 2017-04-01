@@ -48,6 +48,7 @@ public:
     Skeleton(const string & appName, unsigned int width, unsigned int height);
     ~Skeleton();
 
+    void debugInfo();
     void setup();
     void loop();
     void teardown();
