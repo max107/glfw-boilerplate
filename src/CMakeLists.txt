@@ -1,10 +1,11 @@
-SET(project_LIBS libglew_static glfw ${GLFW_LIBRARIES})
+SET(project_LIBS libglew_static glfw imgui ${GLFW_LIBRARIES})
 
 SET(project_BIN ${PROJECT_NAME})
 SET(project_LIB ${PROJECT_NAME}_lib CACHE INTERNAL "Project Library")
 
 SET(project_SRCS
         Skeleton.cpp
+        util/imgui_glfw.cpp
         util/colorhelper.cpp
         util/pathhelper.cpp
         util/shaderhelper.cpp)
@@ -28,6 +29,7 @@ SET_TARGET_PROPERTIES(
         CXX_STANDARD 14)
 
 INCLUDE_DIRECTORIES(
+        ${IMGUI_INCLUDE_PATH}
         ${EASYLOGGINGPP_INCLUDE_PATH}
         ${GLFW_INCLUDE_PATH}
         ${GLEW_INCLUDE_PATH}

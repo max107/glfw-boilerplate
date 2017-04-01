@@ -7,6 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <imgui.h>
+#include "util/imgui_glfw.h"
+
 #include "util/shaderhelper.hpp"
 #include "util/colorhelper.hpp"
 

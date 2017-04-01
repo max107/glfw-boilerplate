@@ -1,7 +1,7 @@
 #
 # Project Properties
 #
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 PROJECT(glfw-skeleton)
 SET(APPLICATION_NAME "GLFW Skeleton")
 SET(APPLICATION_CODENAME "${PROJECT_NAME}")
@@ -12,6 +12,11 @@ SET(APPLICATION_VERSION_PATCH 0)
 SET(APPLICATION_VERSION_TYPE "RELEASE")
 SET(APPLICATION_VERSION_STRING "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}-${APPLICATION_VERSION_TYPE}")
 SET(APPLICATION_ID "${PROJECT_NAME}")
+
+#
+# Cmake
+#
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${MAINFOLDER}/cmake_modules/")
 
 #
 # Debugging Options
@@ -28,7 +33,7 @@ SET(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 # Project Search Paths
 #
 LIST(APPEND CMAKE_PREFIX_PATH "${MAINFOLDER}")
-INCLUDE_DIRECTORIES("${MAINFOLDER}/include")
+INCLUDE_DIRECTORIES("${MAINFOLDER}/src")
 
 #
 # Set compiler warnings
@@ -42,17 +47,31 @@ OPTION(GLFW_BUILD_EXAMPLES  "Build the GLFW example programs"   OFF)
 OPTION(GLFW_BUILD_TESTS     "Build the GLFW test programs"      OFF)
 OPTION(GLFW_BUILD_DOCS      "Build the GLFW documentation"      OFF)
 OPTION(GLFW_INSTALL         "Generate installation target"      OFF)
-
 ADD_SUBDIRECTORY(lib/glfw)
-
 SET(GLFW_INCLUDE_PATH "${MAINFOLDER}/lib/glfw/include")
+
+#
+# imgui
+#
+SET(IMGUI_INCLUDE_PATH "${MAINFOLDER}/lib/imgui")
+add_library(
+        imgui STATIC
+        ${IMGUI_INCLUDE_PATH}/imconfig.h
+        ${IMGUI_INCLUDE_PATH}/imgui.cpp
+        ${IMGUI_INCLUDE_PATH}/imgui.h
+        ${IMGUI_INCLUDE_PATH}/imgui_demo.cpp
+        ${IMGUI_INCLUDE_PATH}/imgui_draw.cpp
+        ${IMGUI_INCLUDE_PATH}/imgui_internal.h
+        ${IMGUI_INCLUDE_PATH}/stb_rect_pack.h
+        ${IMGUI_INCLUDE_PATH}/stb_textedit.h
+        ${IMGUI_INCLUDE_PATH}/stb_truetype.h
+        )
 
 #
 # glew
 #
 OPTION(glew-cmake_BUILD_SHARED "Build the shared glew library" OFF)
 ADD_SUBDIRECTORY(lib/glew)
-
 SET(GLEW_INCLUDE_PATH "${MAINFOLDER}/lib/glew/include")
 
 #
@@ -64,9 +83,7 @@ SET(GLM_INCLUDE_PATH "${MAINFOLDER}/lib/glm")
 # gmock
 #
 ADD_SUBDIRECTORY(lib/googletest/googletest)
-
 SET(GTEST_INCLUDE_PATH "${gtest_SOURCE_DIR}/include")
-
 SET_PROPERTY(TARGET gtest       APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 SET_PROPERTY(TARGET gtest_main  APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 
@@ -77,9 +94,7 @@ OPTION(BANDIT_BUILD_SPECS       "Build the Bandit specs"    OFF)
 OPTION(SNOWHOUSE_BUILD_TESTS    "Build the Snowhouse tests" OFF)
 OPTION(BANDIT_RUN_SPECS         "Run the Bandit specs"      OFF)
 OPTION(SNOWHOUSE_RUN_TESTS      "Run the Snowhouse tests"   OFF)
-
 ADD_SUBDIRECTORY(lib/bandit)
-
 SET(BANDIT_INCLUDE_PATH "${MAINFOLDER}/lib/bandit")
 
 #

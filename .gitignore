@@ -19,3 +19,4 @@ lib/*.a
 bin
 build
 .idea
+imgui.ini

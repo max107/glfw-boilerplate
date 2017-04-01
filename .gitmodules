@@ -21,3 +21,6 @@
 [submodule "lib/easyloggingpp"]
 	path = lib/easyloggingpp
 	url = https://github.com/easylogging/easyloggingpp.git
+[submodule "lib/imgui"]
+	path = lib/imgui
+	url = git@github.com:ocornut/imgui.git

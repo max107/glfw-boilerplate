@@ -25,18 +25,19 @@ void Skeleton::initGL()
 
     // Create window with GLFW
     LOG(INFO) << " - Creating window with GLFW";
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     window = glfwCreateWindow(
-        width,
-        height,
-        appName.c_str(),
-        nullptr,
+        width, 
+        height, 
+        appName.c_str(), 
+        nullptr, // glfwGetPrimaryMonitor(), 
         nullptr
     );
 
@@ -49,6 +50,9 @@ void Skeleton::initGL()
     // Make window the current OpenGL context
     LOG(INFO) << " - Making window the current OpenGL context";
     glfwMakeContextCurrent(window);
+
+    // Setup ImGui binding
+    ImGui_ImplGlfwGL3_Init(window, true);
 
     // Initialise GLEW
     LOG(INFO) << " - Initialising GLEW";
@@ -65,7 +69,7 @@ void Skeleton::initGL()
 
     // Set OpenGL Options
     LOG(INFO) << " - Setting OpenGL Options";
-    glClearColor(0.3f, 0.2f, 0.2f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
@@ -143,6 +147,23 @@ void Skeleton::setup()
 
 void Skeleton::loop()
 {
+    bool show_test_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImColor(114, 144, 154);
+
+    ImGui_ImplGlfwGL3_NewFrame();
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        static float f = 0.0f;
+        ImGui::Text("Hello, world!");
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+        ImGui::ColorEdit3("clear color", (float*)&clear_color);
+        if (ImGui::Button("Test Window")) show_test_window ^= 1;
+        if (ImGui::Button("Another Window")) show_another_window ^= 1;
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    }
+
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(programId);
 
@@ -155,6 +176,7 @@ void Skeleton::loop()
         colorhelper::rgbaHexToVec4("FFFFFF", 0.4f)
     );
 
+    ImGui::Render();
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
@@ -167,6 +189,9 @@ void Skeleton::teardown()
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteProgram(programId);
     glDeleteVertexArrays(1, &vertexArrayId);
+
+    LOG(INFO) << " - Terminating IMGUI";
+    ImGui_ImplGlfwGL3_Shutdown();
 
     LOG(INFO) << " - Terminating GLFW";
     glfwTerminate();
