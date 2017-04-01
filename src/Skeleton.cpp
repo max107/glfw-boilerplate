@@ -6,6 +6,8 @@ Skeleton::Skeleton(const string & appName, unsigned int width, unsigned int heig
     this->appName = appName;
     this->width = width;
     this->height = height;
+
+    LOG(INFO) << "AppVersion: " << version;
 }
 
 Skeleton::~Skeleton()
@@ -23,8 +25,6 @@ void Skeleton::initGL()
 
     // Initialise GLFW
     LOG(INFO) << "Initialising GLFW";
-    LOG(INFO) << GLFW_VERSION_MAJOR;
-    LOG(INFO) << GLFW_VERSION_MINOR;
     if (!glfwInit())
     {
         throw "Failed to initialise GLFW";
@@ -62,10 +62,6 @@ void Skeleton::initGL()
     glfwMakeContextCurrent(window);
 
     glfwSwapInterval(GLFW_FALSE);
-
-    glfwSetWindowUserPointer(window, this);
-    glfwSetWindowFocusCallback(window, &focusEvent);
-    // glfwSetWindowUserPointer(window, window);
 
     // Setup ImGui binding
     ImGui_ImplGlfwGL3_Init(window, true);
@@ -148,29 +144,19 @@ void Skeleton::initGL()
     LOG(INFO) << " - Setting GLFW Options";
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+    // Set the required callback functions
+    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowFocusCallback(window, &focusEvent);
+    glfwSetKeyCallback(window, &keyCallback);
+    glfwSetCursorPosCallback(window, &mouseMoveCallback);
+    // glfwSetWindowUserPointer(window, window);
+
     // Set OpenGL Options
     LOG(INFO) << " - Setting OpenGL Options";
-    glClearColor(1.f, 1.f, 1.f, 0.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
-}
-
-void Skeleton::drawSkull(glm::vec2 pos, float scale, glm::vec4 colour)
-{
-    glUniformMatrix4fv(matrixId, 1, GL_FALSE, & mvp[0][0]);
-
-    glUniform2fv(posId, 1, &pos[0]);
-    glUniform4fv(colourId, 1, &colour[0]);
-    glUniform1f(scaleId, scale);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void *>(0));
-
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(SKULL_VERTICES) / sizeof(GLfloat));
-
-    glDisableVertexAttribArray(0);
 }
 
 void Skeleton::debugInfo() {
@@ -181,14 +167,97 @@ void Skeleton::debugInfo() {
                       ImGuiWindowFlags_NoSavedSettings)) {
         ImGui::End();
     }
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-                ImGui::GetIO().Framerate);
-    ImGui::Separator();
-    ImGui::Text("Mouse Position: (%.1f,%.1f)", 
-        ImGui::GetIO().MousePos.x, 
-        ImGui::GetIO().MousePos.y
-    );
+    
+    ImGui::Text("FPS %.3f ms/frame (%.1f FPS)", 
+        1000.0f / ImGui::GetIO().Framerate,
+        ImGui::GetIO().Framerate);
+    
+    // ImGui::Text("Mouse: (%.1f,%.1f)", 
+    //     ImGui::GetIO().MousePos.x, 
+    //     ImGui::GetIO().MousePos.y);
+    
+    ImGui::Text("Mouse: (%.1f,%.1f)", 
+        xpos, 
+        ImGui::GetIO().MousePos.y);
+    
+    ImGui::Text("Angle: (%.1f,%.1f,%.1f)", 
+        angle.x, 
+        angle.y,
+        angle.z);
+    
+    ImGui::Text("Up: (%.1f,%.1f,%.1f)", 
+        up.x, 
+        up.y,
+        up.z);
+    
+    ImGui::Text("Forward: (%.1f,%.1f,%.1f)", 
+        forward.x, 
+        forward.y,
+        forward.z);
+    
+    ImGui::Text("Right: (%.1f,%.1f,%.1f)", 
+        right.x, 
+        right.y,
+        right.z);
+    
+    ImGui::Text("Lookat: (%.1f,%.1f,%.1f)", 
+        lookat.x, 
+        lookat.y,
+        lookat.z);
+    
+    ImGui::Text("Position: (%.1f,%.1f,%.1f)", 
+        position.x, 
+        position.y,
+        position.z);
+    
     ImGui::End();
+}
+
+void Skeleton::mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
+    Skeleton *skeleton = static_cast<Skeleton*>(glfwGetWindowUserPointer(window));
+
+    static const float mousespeed = 0.001;
+
+    skeleton->xpos = xpos;
+    skeleton->ypos = ypos;
+    
+    skeleton->angle.x -= xpos * mousespeed;
+    skeleton->angle.y -= ypos * mousespeed;
+
+    if (skeleton->angle.x < -M_PI) {
+        skeleton->angle.x += M_PI * 2;
+    }
+
+    if (skeleton->angle.x > M_PI) {
+        skeleton->angle.x -= M_PI * 2;
+    }
+
+    if (skeleton->angle.y < -M_PI / 2) {
+        skeleton->angle.y = -M_PI / 2;
+    }
+
+    if (skeleton->angle.y > M_PI / 2) {
+        skeleton->angle.y = M_PI / 2;
+    }
+
+    skeleton->updateVectors();
+}
+
+void Skeleton::updateVectors() {
+    // Calculate the forward, right and lookat vectors from the angle vector
+    forward.x = sinf(angle.x);
+    forward.y = 0;
+    forward.z = cosf(angle.x);
+
+    right.x = -cosf(angle.x);
+    right.y = 0;
+    right.z = sinf(angle.x);
+
+    lookat.x = sinf(angle.x) * cosf(angle.y);
+    lookat.y = sinf(angle.y);
+    lookat.z = cosf(angle.x) * cosf(angle.y);
+
+    up = glm::cross(right, lookat);
 }
 
 void Skeleton::setup()
@@ -212,8 +281,8 @@ void Skeleton::setup()
 
     try {
         programId = shaderhelper::createProgram("shaders/2dcolor.vert", "shaders/2dcolor.frag");
-    }
-    catch (const string & error)
+    } 
+    catch (const string & error) 
     {
         LOG(ERROR) << error;
         teardown();
@@ -222,9 +291,19 @@ void Skeleton::setup()
 
     posId         = glGetUniformLocation(programId, "position");
     colourId      = glGetUniformLocation(programId, "color");
-    scaleId       = glGetUniformLocation(programId, "scale");
     matrixId      = glGetUniformLocation(programId, "mvp");
 
+    position = glm::vec3(0, CY + 1, 0);
+    angle = glm::vec3(0, -0.5, 0);
+    updateVectors();
+
+    glm::mat4 projection = glm::perspective(
+        45.0f, 
+        1.0f * static_cast<float>(width) / static_cast<float>(height), 
+        0.01f, 
+        1000.0f);
+
+    /*
     glm::mat4 projection = glm::ortho(
         0.f,  static_cast<float>(width),
         0.f,  static_cast<float>(height),
@@ -235,13 +314,20 @@ void Skeleton::setup()
         glm::vec3(0, 0, 0),
         glm::vec3(0, 1, 0)
     );
-    glm::mat4 model = glm::mat4(1.0f);
+    */
 
-    mvp = projection * view * model;
+    glm::mat4 view = glm::lookAt(position, position + lookat, up);
+
+    mvp = projection * view;
 
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(SKULL_VERTICES), SKULL_VERTICES, GL_STATIC_DRAW);
+
+    glEnable(GL_DEPTH_TEST); // Depth Testing
+    glDepthFunc(GL_LEQUAL);
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 }
 
 void Skeleton::renderfps(unsigned int framerate) 
@@ -256,9 +342,41 @@ void Skeleton::renderfps(unsigned int framerate)
 
 void Skeleton::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    LOG(INFO) << key;
+    Skeleton *skeleton = static_cast<Skeleton*>(glfwGetWindowUserPointer(window));
 
-    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+    float speed = 10.f;
+
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_A) {
+            skeleton->position -= skeleton->right * speed;
+        }
+        
+        if (key == GLFW_KEY_D) {
+            skeleton->position += skeleton->right * speed;
+        }
+        
+        if (key == GLFW_KEY_W) {
+            skeleton->position += skeleton->forward * speed;
+        }
+        
+        if (key == GLFW_KEY_S) {
+            skeleton->position -= skeleton->forward * speed;
+        }
+        
+        /*
+        if (key == GLFW_KEY_SPACE) {
+            skeleton->position.y += speed;
+        }
+
+        if (key == GLFW_KEY_CTRL) {
+            skeleton->position.y -= speed;
+        }
+        */
+    }
+
+    std::cout << "Key: " << key << std::endl;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
     }
 }
 
@@ -271,21 +389,93 @@ void Skeleton::focusEvent(GLFWwindow* window, int focused) {
     }
 }
 
+void Skeleton::drawCube()
+{
+    GLfloat vertices[] =
+    {
+        -1, -1, -1,   -1, -1,  1,   -1,  1,  1,   -1,  1, -1,
+        1, -1, -1,    1, -1,  1,    1,  1,  1,    1,  1, -1,
+        -1, -1, -1,   -1, -1,  1,    1, -1,  1,    1, -1, -1,
+        -1,  1, -1,   -1,  1,  1,    1,  1,  1,    1,  1, -1,
+        -1, -1, -1,   -1,  1, -1,    1,  1, -1,    1, -1, -1,
+        -1, -1,  1,   -1,  1,  1,    1,  1,  1,    1, -1,  1
+    };
+
+    GLfloat colors[] =
+    {
+        0, 0, 0,   0, 0, 1,   0, 1, 1,   0, 1, 0,
+        1, 0, 0,   1, 0, 1,   1, 1, 1,   1, 1, 0,
+        0, 0, 0,   0, 0, 1,   1, 0, 1,   1, 0, 0,
+        0, 1, 0,   0, 1, 1,   1, 1, 1,   1, 1, 0,
+        0, 0, 0,   0, 1, 0,   1, 1, 0,   1, 0, 0,
+        0, 0, 1,   0, 1, 1,   1, 1, 1,   1, 0, 1
+    };
+
+    static float alpha = 0;
+    //attempt to rotate cube
+    glRotatef(alpha, 0, 1, 0);
+
+    /* We have a color array and a vertex array */
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glColorPointer(3, GL_FLOAT, 0, colors);
+
+    /* Send data : 24 vertices */
+    glDrawArrays(GL_QUADS, 0, 24);
+
+    /* Cleanup states */
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    alpha += 1;
+}
+
+void Skeleton::drawLogo(glm::vec2 pos, glm::vec4 colour)
+{
+    glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
+
+    glUniform2fv(posId, 1, &pos[0]);
+    glUniform4fv(colourId, 1, &colour[0]);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void *>(0));
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(SKULL_VERTICES) / sizeof(GLfloat));
+
+    glDisableVertexAttribArray(0);
+}
+
 void Skeleton::render() {
     ImGui_ImplGlfwGL3_NewFrame();
     debugInfo();
+    // glUniformMatrix4fv(matrixId, 1, GL_FALSE, glm::value_ptr(mvp));
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glUseProgram(programId);
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(programId);
+    glViewport(0, 0, width, height);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION_MATRIX);
+    glLoadIdentity();
+    gluPerspective( 60, (double)width / (double)height, 0.1, 100 );
+    glMatrixMode(GL_MODELVIEW_MATRIX);
+    glTranslatef(0,0,-5);
+    drawCube();
 
-    drawSkull(
-        {
-            static_cast<float>(width) / 2,
-            static_cast<float>(height) / 2
+    /*
+    drawLogo(
+        { 
+            static_cast<float>(width) / 2, 
+            static_cast<float>(height) / 2 
         },
-        1.6f,
         colorhelper::rgbaHexToVec4("000000", 0.4f)
     );
+    */
+
+    /*
+    drawCube();
+    */
 
     ImGui::Render();
     glfwSwapBuffers(window);
@@ -293,9 +483,8 @@ void Skeleton::render() {
 
 void Skeleton::loop()
 {
-    keyboardEventHandling();
-    renderfps(framerate);
     glfwPollEvents();
+    renderfps(framerate);
 }
 
 void Skeleton::teardown()
@@ -314,83 +503,7 @@ void Skeleton::teardown()
     glfwTerminate();
 }
 
-void Skeleton::keyboardEventHandling() 
-{
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        std::cout << 'E' << std::endl;
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        std::cout << 'W' << std::endl;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        std::cout << 'D' << std::endl;
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        std::cout << 'A' << std::endl;
-    }
-}
-
 bool Skeleton::isActive()
 {
-    return glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
-        && glfwWindowShouldClose(window) == 0;
+    return glfwWindowShouldClose(window) == 0;
 }
-
-const GLfloat Skeleton::SKULL_VERTICES[] =
-{
-    // top of skull
-     60, 50,
-     60,  0,
-    -60,  0,
-    -60, 50,
-     60, 50,
-    -60,  0,
-
-    // left of eyes
-    -60,   0,
-    -40,   0,
-    -60, -30,
-    -60, -30,
-    -40,   0,
-    -40, -30,
-
-    // centre of eyes
-    -10,   0,
-     10,   0,
-    -10, -30,
-    -10, -30,
-     10,   0,
-     10, -30,
-
-    // right of eyes
-     60,   0,
-     40,   0,
-     60, -30,
-     60, -30,
-     40,   0,
-     40, -30,
-
-    // left of nose
-    -60, -30,
-      0, -30,
-    -10, -40,
-    -10, -40,
-    -60, -40,
-    -60, -30,
-
-    // right of nose
-      0, -30,
-     60, -30,
-     10, -40,
-     10, -40,
-     60, -30,
-     60, -40,
-
-    // jaw
-    -30, -40,
-     30, -40,
-    -30, -55,
-    -30, -55,
-     30, -40,
-     30, -55,
-};

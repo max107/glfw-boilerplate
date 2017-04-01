@@ -5,6 +5,10 @@ SET(project_LIB ${PROJECT_NAME}_lib CACHE INTERNAL "Project Library")
 
 SET(project_SRCS
         Skeleton.cpp
+        Blocks.h
+        World.h
+        config.h
+        Chunk.h
         util/imgui_glfw.cpp
         util/colorhelper.cpp
         util/pathhelper.cpp
