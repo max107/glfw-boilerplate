@@ -27,7 +27,7 @@ private:
 
     unsigned int width;
     unsigned int height;
-    unsigned int framerate = 60;
+    unsigned int framerate;
     string appName;
 
     double currentTime;
