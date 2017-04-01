@@ -27,7 +27,11 @@ private:
 
     unsigned int width;
     unsigned int height;
+    unsigned int framerate = 60;
     string appName;
+
+    double currentTime;
+    double lastTime;
 
     GLFWwindow * window;
 
@@ -50,6 +54,10 @@ public:
 
     void debugInfo();
     void setup();
+    void render();
+    void focusEvent();
+    static void focusEvent(GLFWwindow* window, int focused);
+    void renderfps(unsigned int framerate);
     void loop();
     void teardown();
     bool isActive();

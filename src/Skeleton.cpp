@@ -51,6 +51,9 @@ void Skeleton::initGL()
     LOG(INFO) << " - Making window the current OpenGL context";
     glfwMakeContextCurrent(window);
 
+    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowFocusCallback(window, &focusEvent);
+
     // Setup ImGui binding
     ImGui_ImplGlfwGL3_Init(window, true);
 
@@ -225,8 +228,26 @@ void Skeleton::setup()
     glBufferData(GL_ARRAY_BUFFER, sizeof(SKULL_VERTICES), SKULL_VERTICES, GL_STATIC_DRAW);
 }
 
-void Skeleton::loop()
-{
+void Skeleton::renderfps(unsigned int framerate) 
+{ 
+    currentTime = glfwGetTime(); 
+    if (currentTime - lastTime >= 1.0 / framerate) 
+    {
+        lastTime = currentTime;
+        render(); 
+    }
+}
+
+void Skeleton::focusEvent(GLFWwindow* window, int focused) {
+    Skeleton *skeleton = static_cast<Skeleton*>(glfwGetWindowUserPointer(window));
+    if (focused) {
+        skeleton->framerate = 60;
+    } else {
+        skeleton->framerate = 30;
+    }
+}
+
+void Skeleton::render() {
     ImGui_ImplGlfwGL3_NewFrame();
     debugInfo();
 
@@ -245,6 +266,15 @@ void Skeleton::loop()
     ImGui::Render();
     glfwSwapBuffers(window);
     glfwPollEvents();
+}
+
+void Skeleton::loop()
+{
+    if (framerate > 0) {
+        renderfps(framerate);
+    } else {
+        render();
+    }
 }
 
 void Skeleton::teardown()
