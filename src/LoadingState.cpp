@@ -64,7 +64,7 @@ void LoadingState::render() {
 }
 
 void LoadingState::update() {
-    
+    // todo: do something for complete loading state
 }
 
 void LoadingState::exit() {
