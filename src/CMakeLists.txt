@@ -4,11 +4,15 @@ SET(project_BIN ${PROJECT_NAME})
 SET(project_LIB ${PROJECT_NAME}_lib CACHE INTERNAL "Project Library")
 
 SET(project_SRCS
-        Skeleton.cpp
-        Blocks.h
-        World.h
-        config.h
-        Chunk.h
+        OpenCraft.cpp
+        Game.hpp
+        Game.cpp
+        State.hpp
+        State.cpp
+        GameState.cpp
+        GameState.hpp
+        LoadingState.hpp
+        LoadingState.cpp
         util/imgui_glfw.cpp
         util/colorhelper.cpp
         util/pathhelper.cpp
@@ -16,7 +20,7 @@ SET(project_SRCS
 
 ADD_LIBRARY(${project_LIB} ${project_SRCS})
 
-SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
 ADD_EXECUTABLE(${project_BIN} main.cpp)
 
@@ -47,8 +51,7 @@ SET_TARGET_PROPERTIES(${project_BIN} PROPERTIES
         CLEAN_DIRECT_OUTPUT 1)
 
 ADD_CUSTOM_TARGET("${project_BIN}_copy_resources" ALL
-        COMMENT "Copying resources"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${EXECUTABLE_OUTPUT_PATH}/shaders")
-
+         COMMENT "Copying resources"
+         COMMAND ${CMAKE_COMMAND} -E copy_directory
+         "${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${EXECUTABLE_OUTPUT_PATH}/shaders")
 ADD_DEPENDENCIES("${project_BIN}" "${project_BIN}_copy_resources")

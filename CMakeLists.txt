@@ -2,7 +2,7 @@
 # Project Properties
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
-PROJECT(glfw-skeleton)
+PROJECT(opencraft)
 SET(APPLICATION_NAME "GLFW Skeleton")
 SET(APPLICATION_CODENAME "${PROJECT_NAME}")
 SET(APPLICATION_COPYRIGHT_YEARS "2014-2016")
@@ -80,24 +80,6 @@ SET(GLEW_INCLUDE_PATH "${MAINFOLDER}/lib/glew/include")
 SET(GLM_INCLUDE_PATH "${MAINFOLDER}/lib/glm")
 
 #
-# gmock
-#
-ADD_SUBDIRECTORY(lib/googletest/googletest)
-SET(GTEST_INCLUDE_PATH "${gtest_SOURCE_DIR}/include")
-SET_PROPERTY(TARGET gtest       APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
-SET_PROPERTY(TARGET gtest_main  APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
-
-#
-# Bandit
-#
-OPTION(BANDIT_BUILD_SPECS       "Build the Bandit specs"    OFF)
-OPTION(SNOWHOUSE_BUILD_TESTS    "Build the Snowhouse tests" OFF)
-OPTION(BANDIT_RUN_SPECS         "Run the Bandit specs"      OFF)
-OPTION(SNOWHOUSE_RUN_TESTS      "Run the Snowhouse tests"   OFF)
-ADD_SUBDIRECTORY(lib/bandit)
-SET(BANDIT_INCLUDE_PATH "${MAINFOLDER}/lib/bandit")
-
-#
 # EasyLogging++
 #
 SET(EASYLOGGINGPP_INCLUDE_PATH "${MAINFOLDER}/lib/easyloggingpp/src")
@@ -106,10 +88,3 @@ SET(EASYLOGGINGPP_INCLUDE_PATH "${MAINFOLDER}/lib/easyloggingpp/src")
 # Add project sources
 #
 ADD_SUBDIRECTORY(src)
-
-#
-# Add test sources and enable testing
-#
-ENABLE_TESTING()
-
-ADD_SUBDIRECTORY(test)

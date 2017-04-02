@@ -10,10 +10,6 @@
     path = lib/glew
     url = https://github.com/PerlMint/glew-cmake.git
     ignore = dirty
-[submodule "googletest"]
-	path = lib/googletest
-	url = https://github.com/google/googletest.git
-	ignore = dirty
 [submodule "lib/easyloggingpp"]
 	path = lib/easyloggingpp
 	url = https://github.com/easylogging/easyloggingpp.git

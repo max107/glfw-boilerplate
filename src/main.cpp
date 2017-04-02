@@ -1,6 +1,6 @@
 #define ELPP_NO_DEFAULT_LOG_FILE
 
-#include "Skeleton.hpp"
+#include "OpenCraft.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -24,15 +24,15 @@ int main(int argc, char ** argv) {
 
     el::Loggers::setDefaultConfigurations(defaultConf, true);
 
-    Skeleton skeleton("GLFW Skeleton", 800, 600);
+    OpenCraft game("OpenCraft", 800, 600);
 
-    skeleton.setup();
+    game.setup();
 
-    while (skeleton.isActive()) {
-        skeleton.loop();
+    while (game.isActive()) {
+        game.loop();
     }
 
-    skeleton.teardown();
+    game.teardown();
 
     return 0;
 }
