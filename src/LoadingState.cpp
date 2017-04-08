@@ -8,7 +8,7 @@
 
 #include "LoadingState.hpp"
 
-void LoadingState::enter() {
+void LoadingState::enter(StateManager *sm) {
     LOG(INFO) << "Loading State:";
     LOG(INFO) << " - Enter";
     
@@ -65,9 +65,10 @@ void LoadingState::render() {
 
 void LoadingState::update() {
     // todo: do something for complete loading state
+    LOG(INFO) << "LoadingState::update()";
 }
 
-void LoadingState::exit() {
+void LoadingState::exit(StateManager *sm) {
     
 }
 

@@ -19,52 +19,45 @@
 
 #include "State.hpp"
 #include "LoadingState.hpp"
-#include "Game.hpp"
+#include "Config.hpp"
+#include "Window.hpp"
+#include "StateManager.hpp"
 
 #include <iostream>
 #include <memory>
+#include <list>
 
 using std::string;
 
-class OpenCraft : public Game {
-private:
-    unsigned int version = 1;
-
-    unsigned int width;
-    unsigned int height;
-    string appName;
-
-    unsigned int framerate = 60;
+class OpenCraft : public StateManager {
+private:   
+    // the stack of states
+    std::list<State *> states;
+    
+    Config _config;
 
     double currentTime;
     double lastTime;
-    
-    State * _state;
 
-    GLFWwindow * window;
+    Window *_window;
 
     void initGL();
     void update();
-
-public:
-    OpenCraft(const string & appName, unsigned int width, unsigned int height);
-    ~OpenCraft();
-    
-    int getWidth() {
-        return width;
-    }
-    
-    int getHeight() {
-        return height;
-    }
-
+    Window * getWindow() { return this->_window; }
+    void renderfps(unsigned int framerate);
     void debugInfo();
     void setup();
+    
+public:
+    OpenCraft(Config config) : _config(config) {
+    };
+    
+    Config getConfig() { return this->_config; };
+    
+    void pushState(State *state);
+    
+    void run();
     void render();
-    void renderfps(unsigned int framerate);
-    void loop();
-    void changeState(State *state);
     void teardown();
-    bool isActive();
 };
 

@@ -10,13 +10,14 @@
 #define GameState_hpp
 
 #include "State.hpp"
+#include "StateManager.hpp"
 
 class GameState : public State {
 public:
     virtual void render();
     virtual void update();
-    virtual void enter();
-    virtual void exit();
+    virtual void enter(StateManager *sm);
+    virtual void exit(StateManager *sm);
     virtual ~GameState();
 };
 

@@ -4,13 +4,14 @@ SET(project_BIN ${PROJECT_NAME})
 SET(project_LIB ${PROJECT_NAME}_lib CACHE INTERNAL "Project Library")
 
 SET(project_SRCS
+        Config.hpp
         OpenCraft.cpp
-        Game.hpp
-        Game.cpp
         State.hpp
-        State.cpp
+        StateManager.hpp
         GameState.cpp
         GameState.hpp
+        Window.hpp
+        Window.cpp
         LoadingState.hpp
         LoadingState.cpp
         util/imgui_glfw.cpp

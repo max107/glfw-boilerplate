@@ -19,13 +19,14 @@
 #include <GLFW/glfw3.h>
 #include "OpenCraft.hpp"
 #include <iostream>
+#include "StateManager.hpp"
 
 class LoadingState : public State {
 public:
-    virtual void enter();
+    virtual void enter(StateManager *state);
     virtual void render();
     virtual void update();
-    virtual void exit();
+    virtual void exit(StateManager *state);
     virtual ~LoadingState();
 
 private:

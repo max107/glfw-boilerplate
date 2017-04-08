@@ -16,11 +16,11 @@ void GameState::update() {
     
 }
 
-void GameState::enter() {
+void GameState::enter(StateManager *sm) {
     
 }
 
-void GameState::exit() {
+void GameState::exit(StateManager *sm) {
     
 }
 

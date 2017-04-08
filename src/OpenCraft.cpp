@@ -1,32 +1,4 @@
 #include "OpenCraft.hpp"
-#include <iostream>
-
-OpenCraft::OpenCraft(const string & appName, unsigned int width, unsigned int height)
-{
-    this->appName = appName;
-    this->width = width;
-    this->height = height;
-
-    LOG(INFO) << "AppVersion: " << version;
-}
-
-OpenCraft::~OpenCraft()
-{
-
-}
-
-void OpenCraft::changeState(State *state) {
-    try {
-        state->enter();
-    }
-    catch (const string & error)
-    {
-        LOG(ERROR) << error;
-        teardown();
-        exit(1);
-    }
-    this->_state = state;
-}
 
 // void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 //     std::cout <<"MOUSE POS: " << xpos << ","<< ypos << std::endl;
@@ -53,31 +25,13 @@ void OpenCraft::initGL()
 #endif
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    window = glfwCreateWindow(
-        width, 
-        height, 
-        appName.c_str(), 
-        nullptr, // glfwGetPrimaryMonitor(), 
-        nullptr
-    );
-
-    if (window == nullptr)
-    {
-        glfwTerminate();
-        throw "Failed to create window with GLFW.";
-    }
+    _window = new Window(this->getConfig());
 
     // glfwSetCursorPosCallback(window, mouse_callback);
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // Make window the current OpenGL context
-    LOG(INFO) << " - Making window the current OpenGL context";
-    glfwMakeContextCurrent(window);
-
-    glfwSwapInterval(GLFW_FALSE);
-
     // Setup ImGui binding
-    ImGui_ImplGlfwGL3_Init(window, true);
+    ImGui_ImplGlfwGL3_Init(_window->getGlfwWindow(), true);
 
     // Apply imgui skin
     ImGuiStyle &style = ImGui::GetStyle();
@@ -153,10 +107,6 @@ void OpenCraft::initGL()
         throw "Failed to initialise GLEW";
     }
 
-    // Set GLFW Options
-    LOG(INFO) << " - Setting GLFW Options";
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
     // Set the required callback functions
 //    glfwSetWindowUserPointer(window, this);
 //    glfwSetWindowFocusCallback(window, &focusEvent);
@@ -196,7 +146,7 @@ void OpenCraft::debugInfo() {
 void OpenCraft::setup()
 {
     LOG(INFO) << string(64, '=');
-    LOG(INFO) << "Starting up " << appName << "!";
+    LOG(INFO) << "Starting up " << this->getConfig().getAppName() << "!";
     LOG(INFO) << string(64, '=');
 
     try
@@ -206,16 +156,17 @@ void OpenCraft::setup()
     catch (const char * error)
     {
         LOG(INFO) << error;
-        exit(-1);
+        throw error;
     }
     
-    this->changeState(new LoadingState());
+    LOG(INFO) << "Set LoadingState";
+    this->pushState(new LoadingState());
 }
 
 void OpenCraft::renderfps(unsigned int framerate) 
 { 
     currentTime = glfwGetTime(); 
-    if (currentTime - lastTime >= 1.0 / framerate) 
+    if (currentTime - lastTime >= 1.0 / framerate)
     {
         lastTime = currentTime;
         render(); 
@@ -228,36 +179,61 @@ void OpenCraft::render() {
     ImGui_ImplGlfwGL3_NewFrame();
     debugInfo();
     
-    this->_state->render();
+    for (auto& s : states)
+    {
+        s->render();
+    }
 
     ImGui::Render();
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(this->getWindow()->getGlfwWindow());
+}
+
+void OpenCraft::pushState(State *state) {
+    // Put in states list
+    try {
+        LOG(INFO) << "Enter to new state";
+        state->enter(this);
+    }
+    catch (const std::string & error)
+    {
+        LOG(ERROR) << error;
+        throw error;
+    }
+    
+    states.push_back(state);
 }
 
 void OpenCraft::update()
 {
     glfwPollEvents();
+    
+    for (auto& s : states)
+    {
+        s->update();
+    }
 }
 
-void OpenCraft::loop()
-{
-    update();
-    this->_state->update();
-    renderfps(framerate);
+void OpenCraft::run() {
+    this->setup();
+    
+    while (this->getWindow()->isActive()) {
+        this->update();
+        this->renderfps(this->getConfig().getFramerate());
+    }
+    
+    this->teardown();
 }
 
 void OpenCraft::teardown()
 {
-    LOG(INFO) << "Cleaning up OpenGL";
-
-    LOG(INFO) << " - Terminating IMGUI";
-    ImGui_ImplGlfwGL3_Shutdown();
+    for (auto& s : states)
+    {
+        s->exit(this);
+    }
+    
+    // LOG(INFO) << " - Terminating IMGUI";
+    // ImGui_ImplGlfwGL3_Shutdown();
 
     LOG(INFO) << " - Terminating GLFW";
     glfwTerminate();
-}
-
-bool OpenCraft::isActive()
-{
-    return glfwWindowShouldClose(window) == 0;
 }

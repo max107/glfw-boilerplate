@@ -38,7 +38,7 @@ INCLUDE_DIRECTORIES("${MAINFOLDER}/src")
 #
 # Set compiler warnings
 #
-SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -Wextra -Werror -Wfloat-equal -Wno-unused-parameter -Wno-unknown-pragmas -Wno-deprecated-declarations -Wno-pessimizing-move")
+SET(CMAKE_CXX_FLAGS "-g -O0 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unknown-pragmas -Wno-deprecated-declarations -Wno-pessimizing-move")
 
 #
 # glfw
