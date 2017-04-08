@@ -9,9 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/noise.hpp>
 
-#include <imgui.h>
-#include "util/imgui_glfw.h"
-
 #include "util/shaderhelper.hpp"
 #include "util/colorhelper.hpp"
 
@@ -19,9 +16,9 @@
 
 #include "State.hpp"
 #include "LoadingState.hpp"
+#include "UiState.hpp"
 #include "Config.hpp"
 #include "Window.hpp"
-#include "StateManager.hpp"
 
 #include <iostream>
 #include <memory>
@@ -29,7 +26,7 @@
 
 using std::string;
 
-class OpenCraft : public StateManager {
+class OpenCraft {
 private:   
     // the stack of states
     std::list<State *> states;

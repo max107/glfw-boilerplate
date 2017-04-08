@@ -9,16 +9,15 @@
 #ifndef State_hpp
 #define State_hpp
 
-#include "StateManager.hpp"
+class OpenCraft;
 
 class State {
     
 public:
-    virtual void enter(StateManager *sm) = 0;
+    virtual void enter(OpenCraft *sm) = 0;
     virtual void render() = 0;
     virtual void update() = 0;
-    virtual void exit(StateManager *sm) = 0;
-    virtual ~State() {}
+    virtual void exit(OpenCraft *sm) = 0;
     
 };
 

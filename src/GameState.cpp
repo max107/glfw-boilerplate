@@ -16,14 +16,10 @@ void GameState::update() {
     
 }
 
-void GameState::enter(StateManager *sm) {
+void GameState::enter(OpenCraft *sm) {
     
 }
 
-void GameState::exit(StateManager *sm) {
-    
-}
-
-GameState::~GameState() {
+void GameState::exit(OpenCraft *sm) {
     
 }

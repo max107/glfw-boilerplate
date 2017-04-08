@@ -7,7 +7,8 @@ SET(project_SRCS
         Config.hpp
         OpenCraft.cpp
         State.hpp
-        StateManager.hpp
+        UiState.hpp
+        UiState.cpp
         GameState.cpp
         GameState.hpp
         Window.hpp

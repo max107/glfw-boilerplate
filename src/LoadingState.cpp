@@ -8,7 +8,7 @@
 
 #include "LoadingState.hpp"
 
-void LoadingState::enter(StateManager *sm) {
+void LoadingState::enter(OpenCraft *sm) {
     LOG(INFO) << "Loading State:";
     LOG(INFO) << " - Enter";
     
@@ -80,11 +80,7 @@ void LoadingState::update() {
     }
 }
 
-void LoadingState::exit(StateManager *sm) {
-    
-}
-
-LoadingState::~LoadingState() {
+void LoadingState::exit(OpenCraft *sm) {
     LOG(INFO) << " - Deleting OpenGL resources";
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteProgram(programId);
