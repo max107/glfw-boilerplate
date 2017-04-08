@@ -20,6 +20,7 @@ void LoadingState::enter(StateManager *sm) {
     posId         = glGetUniformLocation(programId, "position");
     colourId      = glGetUniformLocation(programId, "color");
     matrixId      = glGetUniformLocation(programId, "mvp");
+    scaleId       = glGetUniformLocation(programId, "scale");
 
     glm::mat4 projection = glm::ortho(
         0.f,  static_cast<float>(800),
@@ -53,6 +54,7 @@ void LoadingState::render() {
     
     glUniform2fv(posId, 1, &pos[0]);
     glUniform4fv(colourId, 1, &colour[0]);
+    glUniform1f(scaleId, _scale);
     
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -65,7 +67,17 @@ void LoadingState::render() {
 
 void LoadingState::update() {
     // todo: do something for complete loading state
-    LOG(INFO) << "LoadingState::update()";
+    if (_up) {
+        _scale += _delta;
+        if (_scale >= 2.f) {
+            _up = false;
+        }
+    } else {
+        _scale -= _delta;
+        if (_scale <= 1.f) {
+            _up = true;
+        }
+    }
 }
 
 void LoadingState::exit(StateManager *sm) {

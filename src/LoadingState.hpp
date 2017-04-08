@@ -32,6 +32,7 @@ public:
 private:
 	GLint posId;
     GLint colourId;
+    GLint scaleId;
     GLint matrixId;
     GLuint vertexbuffer;
     GLuint vertexArrayId;
@@ -41,6 +42,10 @@ private:
     
     glm::vec4 colour;
     glm::vec2 pos;
+    
+    float _scale = 1.f;
+    bool _up = true;
+    double _delta = 0.00001f;
 };
 
 const GLfloat SKULL_VERTICES[84] =
